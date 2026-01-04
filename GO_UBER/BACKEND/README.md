@@ -193,3 +193,121 @@ The request body must be a JSON object with the following required fields:
 - If the password does not match the stored hashed password, a 401 Unauthorized response is returned
 - A JWT token with 7-day expiration is generated and returned upon successful authentication
 - The `JWT_SECRET` environment variable must be set for token generation
+
+---
+
+## GET /users/profile
+
+### Description
+This endpoint retrieves the authenticated user's profile information. It requires a valid JWT token for authentication.
+
+### Request Method
+```
+GET /users/profile
+```
+
+### Request Headers
+```
+Authorization: Bearer <token>
+```
+or
+```
+Cookie: token=<token>
+```
+
+### Authentication
+This endpoint requires authentication. You must provide a valid JWT token obtained from the `/users/register` or `/users/login` endpoint.
+
+### Response Status Codes
+
+| Status Code | Description |
+|-------------|-------------|
+| `200` | Profile retrieved successfully |
+| `401` | Unauthorized - invalid or missing token |
+| `500` | Internal server error |
+
+### Success Response (200 OK)
+```json
+{
+  "user": {
+    "_id": "60d5ec49c1234567890abc12",
+    "fullname": {
+      "firstname": "John",
+      "lastname": "Doe"
+    },
+    "email": "john.doe@example.com"
+  }
+}
+```
+
+### Error Response (401 Unauthorized)
+```json
+{
+  "errors": [
+    {
+      "msg": "No token, authorization denied"
+    }
+  ]
+}
+```
+
+### Notes
+- Only authenticated users can access this endpoint
+- The user's password is not included in the response for security reasons
+- The token must be valid and not expired
+
+---
+
+## GET /users/logout
+
+### Description
+This endpoint logs out the authenticated user by clearing their authentication token and adding it to a blacklist to prevent reuse.
+
+### Request Method
+```
+GET /users/logout
+```
+
+### Request Headers
+```
+Authorization: Bearer <token>
+```
+or
+```
+Cookie: token=<token>
+```
+
+### Authentication
+This endpoint requires authentication. You must provide a valid JWT token obtained from the `/users/register` or `/users/login` endpoint.
+
+### Response Status Codes
+
+| Status Code | Description |
+|-------------|-------------|
+| `200` | Logged out successfully |
+| `401` | Unauthorized - invalid or missing token |
+| `500` | Internal server error |
+
+### Success Response (200 OK)
+```json
+{
+  "message": "Logged out successfully"
+}
+```
+
+### Error Response (401 Unauthorized)
+```json
+{
+  "errors": [
+    {
+      "msg": "No token, authorization denied"
+    }
+  ]
+}
+```
+
+### Notes
+- Only authenticated users can access this endpoint
+- The authentication token is cleared from cookies
+- The token is added to a blacklist with a 24-hour expiration to prevent token reuse
+- After logout, the user must login again to access protected endpoints
